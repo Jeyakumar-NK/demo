@@ -1,0 +1,102 @@
+package com.cts.controller;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/Api")
+public class UserController {
+
+	
+	@GetMapping("/public")
+	public String publicMethod()
+	{
+		return "This is public end-point";
+	}
+
+	@GetMapping("/user")
+	public String userMethod()
+	{
+
+		return "This is user end-point";
+	}
+	
+
+	@GetMapping("/admin")
+	public String adminMethod()
+	{
+
+		return "This is admin end-point";
+	}
+}
+
+
+
+
+package com.cts.config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.SecurityFilterChain;
+
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig 
+{
+
+	
+	@Bean
+	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception 
+	{
+	
+		http.authorizeHttpRequests((req) -> req
+				.requestMatchers("Api/public/**").permitAll()
+				.requestMatchers("Api/user").hasRole("USER")
+				.requestMatchers("Api/admin").hasRole("ADMIN")
+				).httpBasic(Customizer.withDefaults());
+		
+		
+		return http.build();
+		
+	}
+	
+	@Bean
+	public UserDetailsService userDetailsService()
+	{
+		
+		
+		UserDetails user1=User.withDefaultPasswordEncoder()
+				.username("Rahul")
+				.password("passwordrahul")
+				.roles("USER")
+				.build();
+		
+		
+		UserDetails user2=User.withDefaultPasswordEncoder()
+				.username("mahesh")
+				.password("passwordmahesh")
+				.roles("USER","ADMIN")
+				.build();
+		
+	
+		return new InMemoryUserDetailsManager(user1,user2);
+		
+	}
+}
+
+---------------------------------
+
+spring.application.name=SpringSecurityDemp
+
+
+spring.security.user.name=myuser
+spring.security.user.password=mypassword
+
